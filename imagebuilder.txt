@@ -1,0 +1,13 @@
+cd /hdd-storage/temp-downloads/openwrt/imagebuilder/openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64
+
+mkdir -p files/etc/config
+scp root@192.168.1.2:/etc/config/network files/etc/config/
+scp root@192.168.1.2:/etc/config/dhcp files/etc/config/
+scp root@192.168.1.2:/etc/config/wireless files/etc/config/
+scp root@192.168.1.2:/etc/config/firewall files/etc/config/
+scp root@192.168.1.2:/etc/config/nlbwmon files/etc/config/
+/hdd-storage/storage/scripts/router_backup_rpi4.sh
+mkdir -p files/root/nlbw
+cp /hdd-storage/storage/backups/router/RPi4/* files/root/nlbw/
+
+make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 mt76 mt76x2u mt76x02_usb mt76x2e mt7603e mt76_usb mt76x2_common mt76x02_lib mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli" FILES=files/
