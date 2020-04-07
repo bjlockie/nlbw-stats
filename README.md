@@ -1,3 +1,5 @@
+* LIKELY HAS BUGS, UPLOADED FOR BACKUP *
+
 # nlbw_stats
 stats slicer for json output of daily nlbwmon (openwrt) databases
 
