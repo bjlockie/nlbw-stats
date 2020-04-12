@@ -1,0 +1,24 @@
+cd /hdd-storage/temp-downloads/openwrt/imagebuilder/openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64
+
+mkdir -p files/etc/config
+scp root@192.168.1.2:/etc/config/network files/etc/config/
+scp root@192.168.1.2:/etc/config/dhcp files/etc/config/
+scp root@192.168.1.2:/etc/config/wireless files/etc/config/
+scp root@192.168.1.2:/etc/config/firewall files/etc/config/
+scp root@192.168.1.2:/etc/config/nlbwmon files/etc/config/
+mkdir -p files/root/
+scp -r root@192.168.1.2:/root/nlbw/ files/root/
+
+make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 kmod-mt76 kmod-mt76x2u kmod-mt76x02-usb kmod-mt76x2 kmod-mt76-usb kmod-mt76x2-common kmod-mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli" FILES=files/
+
+$ ls -lh ./bin/targets/bcm27xx/bcm2711
+
+$ gunzip ./bin/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
+
+$ sudo dd  status=progress if=./bin/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/sdX
+
+$ make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 mt76 mt76x2u mt76x02_usb mt76x2e mt7603e mt76_usb mt76x2_common mt76x02_lib mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli -cypress-firmware-43455-sdio -cypress-firmware-43455-sdio-rpi-4b -brcmfmac-firmware-usb -kmod-brcmfmac -kmod-brcmutil" FILES=files/
+
+
+# ip link set dev wlan1 up
+# iwlist wlan1 scan
