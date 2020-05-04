@@ -9,6 +9,7 @@ import json
 import sqlite3
 from datetime import date
 from decimal import getcontext, Decimal
+from calendar import monthrange
 
 
 def convert_bytes(num):
@@ -29,11 +30,16 @@ def createTable( conn ):
     return cur.lastrowid
     
 
-# desktop 70:85:C2:B4:61:37 192.168.1.4
-# getSum_bytes( conn, '2020', '03', '70:85:C2:B4:61:37' )
-# all downnload for month
+# desktop 70:85:C2:B4:61:37
+# getSum_bytes( conn, year='2020', month='03', mac='70:85:C2:B4:61:37' )
+# LG_tv_wired A8:23:FE:DF:02:D3
+# getSum_bytes( conn, year='2020', month='04', mac='A8:23:FE:DF:02:D3' )
+# EntoneSTB 00:03:E6:75:8D:E0
+# cell_phone AE:C9:CA:9C:87:F2
+# HT702_voip 00:0B:82:4F:B5:6B
+# all download for month
 # getSum_bytes( conn, '2020', '03' )
-def getSum_bytes( conn, year, month, upload=False, mac='' ):
+def getSum_bytes( conn, year, month, day='', mac='', upload=False ):
     bytes=0
     sql = 'select sum('
     if upload:
@@ -44,8 +50,13 @@ def getSum_bytes( conn, year, month, upload=False, mac='' ):
     if mac:
         sql += 'and mac=?'
     cur = conn.cursor()
-    dt=year+'-'+month+'-%'
+    dt=year+'-'+month+'-'
+    if day:
+        dt=dt+"{:02d}".format(day)
+    else:
+        dt+='%'
     try:
+        #print "sql="+sql+", dt="+dt
         if mac:
             cur.execute(sql, [dt, mac])
         else:
@@ -55,11 +66,19 @@ def getSum_bytes( conn, year, month, upload=False, mac='' ):
         bytes=bytes_list[0][0]
     except sqlite3.Error as e:
         print(e)
-    sizes=convert_bytes(bytes)
-    kb=sizes[1]
-    mb=sizes[2]
-    gb=sizes[3]
-    tb=sizes[4]
+
+    kb="x"
+    mb="x"
+    gb="x"
+    tb="x"
+    
+    if bytes:
+        sizes=convert_bytes(bytes)
+        kb=sizes[1]
+        mb=sizes[2]
+        gb=sizes[3]
+        tb=sizes[4]
+
     return [bytes, kb, mb, gb, tb]
     
 
@@ -167,16 +186,20 @@ def new_data( conn ):
     allTrafficList = []
     
     for JSON_FILE in fileList:
-        traffic = json.load(open(JSON_FILE))
-        fndate = getfnamedt( JSON_FILE )
+            print( "Processing '"+JSON_FILE+"'" )
         
-        # create lists of trafficEntry objects for each MAC
-        for vals in traffic["data"]:
-            # skip '00:00:00:00:00:00' MACs
-            if vals[3]!='00:00:00:00:00:00':
-                # find the list with the target MAC
-                trafficList=findMAC(allTrafficList, vals[3])
-                trafficList.append( trafficEntry( fndate, vals ) )
+            traffic = json.load(open(JSON_FILE))
+            fndate = getfnamedt( JSON_FILE )
+            
+            # create lists of trafficEntry objects for each MAC
+            for vals in traffic["data"]:
+                # skip '00:00:00:00:00:00' MACs
+                if vals[3]!='00:00:00:00:00:00':
+                    # find the list with the target MAC
+                    trafficList=findMAC(allTrafficList, vals[3])
+                    trafficList.append( trafficEntry( fndate, vals ) )
+#         except:
+#             print( "    Error loading json" )
     
     dumpAllTrafficList( allTrafficList, False, conn )
 
@@ -196,6 +219,12 @@ except sys.Error as e:
 print( 'March 2020:' )
 print( getSum_bytes( conn, '2020', '03' ) )
 
+print( 'April 2020:' )
+days=monthrange(2020, 4)[1]
+for day in range(1, days):
+    print( ""+str(day)+"->"+getSum_bytes( conn, '2020', '04', day )[3] )
+  
+print( "total: "+getSum_bytes( conn, '2020', '04' )[3] )
 
 
 conn.close()
