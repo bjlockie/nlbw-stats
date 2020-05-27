@@ -212,19 +212,35 @@ try:
 except sys.Error as e:
     print(e)
 
+
 #createTable( conn )
 #new_data( conn )
 #conn.commit()
 
 print( 'March 2020:' )
-print( getSum_bytes( conn, '2020', '03' ) )
+download_tx = getSum_bytes( conn, '2020', '03' )
+upload_tx = getSum_bytes( conn, '2020', '03', upload=True )
+print( "total GiB:"+str(download_tx[3])+", "+str(upload_tx[3]) )
 
-print( 'April 2020:' )
+print( "\nApril 2020:" )
 days=monthrange(2020, 4)[1]
 for day in range(1, days):
-    print( ""+str(day)+"->"+getSum_bytes( conn, '2020', '04', day )[3] )
-  
-print( "total: "+getSum_bytes( conn, '2020', '04' )[3] )
+    download_tx = getSum_bytes( conn, '2020', '04', day )
+    upload_tx = getSum_bytes( conn, '2020', '04', day, upload=True )
+    print( ""+str(day)+"->"+download_tx[3]+", "+str(upload_tx[3]) )
+download_tx = getSum_bytes( conn, '2020', '04' )
+upload_tx = getSum_bytes( conn, '2020', '04', upload=True )
+print( "total GiB:"+str(download_tx[3])+", "+str(upload_tx[3]) )
+
+print( "\nMay 2020:" )
+days=monthrange(2020, 5)[1]
+for day in range(1, days):
+    download_tx = getSum_bytes( conn, '2020', '05', day )
+    upload_tx = getSum_bytes( conn, '2020', '05', day, upload=True )
+    print( ""+str(day)+"->"+download_tx[3]+", "+str(upload_tx[3]) )
+download_tx = getSum_bytes( conn, '2020', '05' )
+upload_tx = getSum_bytes( conn, '2020', '05', upload=True )
+print( "total GiB:"+str(download_tx[3])+", "+str(upload_tx[3]) )
 
 
 conn.close()
