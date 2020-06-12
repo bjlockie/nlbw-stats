@@ -16,7 +16,7 @@ http://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/
 2. Set up nlbwmon database interval to 1 day.
 3. Set up dhcp/static IPs for hosts you want to track.
 
-This repo will have"
+This repo will have:
 1. The imagebuilder comand I use
 2 a bash script to run nlbw (via ssh) to create the json output and scp the json and nlbwmon databases to your desktop
 2. a python program to load the json and create the sqlite database
