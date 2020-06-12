@@ -1,23 +1,64 @@
-cd /hdd-storage/temp-downloads/openwrt/imagebuilder/openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64
+cd /hdd-storage/temp-downloads/openwrt-imagebuilder/
+
+mkdir 2020-06-11
+cd 2020-06-11
+
+wget https://downloads.openwrt.org/snapshots/targets/bcm27xx/bcm2711/openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64.tar.xz
+
+tar -xf openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64.tar.xz
+
+cd openwrt-imagebuilder-bcm27xx-bcm2711.Linux-x86_64/
 
 mkdir -p files/etc/config
+scp root@192.168.1.2:/etc/config/system files/etc/config/
 scp root@192.168.1.2:/etc/config/network files/etc/config/
 scp root@192.168.1.2:/etc/config/dhcp files/etc/config/
 scp root@192.168.1.2:/etc/config/wireless files/etc/config/
 scp root@192.168.1.2:/etc/config/firewall files/etc/config/
 scp root@192.168.1.2:/etc/config/nlbwmon files/etc/config/
-mkdir -p files/root/
-scp -r root@192.168.1.2:/root/nlbw/ files/root/
+scp root@192.168.1.2:/etc/config/openvpn_recipes files/etc/config
+scp root@192.168.1.2:/etc/config/openvpn files/etc/config/
+scp root@192.168.1.2:/etc/config/vpnbypass files/etc/config/
 
-make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 kmod-mt76 kmod-mt76x2u kmod-mt76x02-usb kmod-mt76x2 kmod-mt76-usb kmod-mt76x2-common kmod-mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli" FILES=files/
+mkdir -p files/etc/openvpn
+scp -r root@192.168.1.2:/etc/openvpn files/etc/openvpn/
+
+mkdir -p files/etc/wireguard
+scp root@192.168.1.2:/etc/wireguard files/etc/wireguard/
+
+mkdir -p files/usr/share/nlbwmon
+echo > files/usr/share/nlbwmon/protocols
+
+mkdir -p files/root/nlbw
+
+mkdir -p files/etc/dropbear
+cat ~/.ssh/id_rsa.pub > files/etc/dropbear/authorized_keys
+chmod go-w files/etc/dropbear/authorized_keys
+
+ssh root@192.168.1.2 'nlbw -c commit'
+scp -rp root@192.168.1.2:/root/nlbw/ files/root/
+
+make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 kmod-mt76 kmod-mt76x2u kmod-mt76x02-usb kmod-mt76x2 kmod-mt76-usb kmod-mt76x2-common kmod-mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli bcm27xx-userland openssl-util luci-app-openvpn openvpn-openssl luci-app-vpnbypass htop nut-server -cypress-firmware-43455-sdio -cypress-firmware-43455-sdio-rpi-4b -brcmfmac-firmware-usb -kmod-brcmfmac -kmod-brcmutil" FILES=files/
+
+
+ssh root@192.168.1.2 'nlbw -c commit'
+scp -rp root@192.168.1.2:/root/nlbw/ files/root/
+
+make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 kmod-mt76 kmod-mt76x2u kmod-mt76x02-usb kmod-mt76x2 kmod-mt76-usb kmod-mt76x2-common kmod-mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli bcm27xx-userland openssl-util luci-app-openvpn openvpn-openssl luci-app-vpnbypass htop nut-server  -cypress-firmware-43455-sdio -cypress-firmware-43455-sdio-rpi-4b -brcmfmac-firmware-usb -kmod-brcmfmac -kmod-brcmutil" FILES=files/
+
+
+ssh root@192.168.1.2 'halt'
 
 $ ls -lh ./bin/targets/bcm27xx/bcm2711
 
 $ gunzip ./bin/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img.gz
 
-$ sudo dd  status=progress if=./bin/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/sdX
+$ sudo dd status=progress if=./bin/targets/bcm27xx/bcm2711/openwrt-bcm27xx-bcm2711-rpi-4-ext4-factory.img of=/dev/sdX
 
-$ make image PROFILE=rpi-4 PACKAGES="kmod-usb-net-rtl8152 mt76 mt76x2u mt76x02_usb mt76x2e mt7603e mt76_usb mt76x2_common mt76x02_lib mt76x2u luci usbutils wireless-tools pciutils luci-app-nlbwmon sqlite3-cli -cypress-firmware-43455-sdio -cypress-firmware-43455-sdio-rpi-4b -brcmfmac-firmware-usb -kmod-brcmfmac -kmod-brcmutil" FILES=files/
+ssh-keygen -f "/home/rjl/.ssh/known_hosts" -R "192.168.1.2"
+
+
+-cypress-firmware-43455-sdio -cypress-firmware-43455-sdio-rpi-4b -brcmfmac-firmware-usb -kmod-brcmfmac -kmod-brcmutil
 
 
 # ip link set dev wlan1 up
